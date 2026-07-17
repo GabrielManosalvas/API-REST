@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD JSONPlaceholder</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .seccion {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px gray;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        .post {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            background: #fafafa;
+        }
+
+        .mensaje {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Consumo API REST - JSONPlaceholder</h1>
+
+    <!-- LISTAR -->
+    <div class="seccion">
+
+        <h2>1. Listar Publicaciones</h2>
+
+        <button id="btnListar">Mostrar Publicaciones</button>
+        <button id="btnOcultar">Ocultar</button>
+
+        <div id="listaPosts"></div>
+
+    </div>
+
+    <!-- BUSCAR ID -->
+    <div class="seccion">
+
+        <h2>2. Buscar Publicación por ID</h2>
+
+        <input type="number" id="buscarId" placeholder="Ingrese ID">
+
+        <button id="btnBuscar">
+            Buscar
+        </button>
+
+        <div id="resultadoBusqueda"></div>
+
+    </div>
+
+    <!-- FILTRAR -->
+    <div class="seccion">
+
+        <h2>3. Filtrar por Usuario</h2>
+
+        <input type="number" id="buscarUserId" placeholder="Ingrese userId">
+
+        <button id="btnUsuario">
+            Buscar
+        </button>
+
+        <div id="resultadoUsuario"></div>
+
+    </div>
+
+    <!-- CREAR -->
+    <div class="seccion">
+
+        <h2>4. Crear Publicación</h2>
+
+        <input type="number" id="crearUserId" placeholder="User ID">
+
+        <input type="text" id="crearTitulo" placeholder="Título">
+
+        <textarea id="crearBody" placeholder="Contenido"></textarea>
+
+        <button id="btnCrear">
+
+            Crear Publicación
+
+        </button>
+
+        <div id="resultadoCrear" class="mensaje"></div>
+
+    </div>
+
+    <!-- PATCH -->
+    <div class="seccion">
+
+        <h2>5. Actualizar Título (PATCH)</h2>
+
+        <input type="number" id="actId" placeholder="ID">
+
+        <input type="text" id="actTitulo" placeholder="Nuevo título">
+
+        <button id="btnActualizar">
+
+            Actualizar
+
+        </button>
+
+        <div id="resultadoActualizar" class="mensaje"></div>
+
+    </div>
+
+    <!-- DELETE -->
+    <div class="seccion">
+
+        <h2>6. Eliminar Publicación</h2>
+
+        <input type="number" id="eliminarId" placeholder="ID">
+
+        <button id="btnEliminar">
+
+            Eliminar
+
+        </button>
+
+        <div id="resultadoEliminar" class="mensaje"></div>
+
+    </div>
+
+    <script>
+
+        const API_URL = "https://jsonplaceholder.typicode.com/posts";
+
+        //===========================
+        // FUNCIONES API
+        //===========================
+
+        async function obtenerPosts() {
+
+            const respuesta = await fetch(API_URL);
+
+            if (!respuesta.ok)
+                throw new Error("Error al obtener publicaciones.");
+
+            return await respuesta.json();
+
+        }
+
+        async function obtenerPostPorId(id) {
+
+            const respuesta = await fetch(`${API_URL}/${id}`);
+
+            if (!respuesta.ok)
+                throw new Error("No existe esa publicación.");
+
+            return await respuesta.json();
+
+        }
+
+        async function obtenerPostsUsuario(userId) {
+
+            const respuesta = await fetch(`${API_URL}?userId=${userId}`);
+
+            if (!respuesta.ok)
+                throw new Error("Error al consultar.");
+
+            return await respuesta.json();
+
+        }
+
+        async function crearPost(post) {
+
+            const respuesta = await fetch(API_URL, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(post)
+
+            });
+
+            if (!respuesta.ok)
+                throw new Error("No se pudo crear.");
+
+            return await respuesta.json();
+
+        }
+
+        async function actualizarTitulo(id, titulo) {
+
+            const respuesta = await fetch(`${API_URL}/${id}`, {
+
+                method: "PATCH",
+
+                headers: {
+
+                    "Content-Type": "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    title: titulo
+
+                })
+
+            });
+
+            if (!respuesta.ok)
+                throw new Error("No se pudo actualizar.");
+
+            return await respuesta.json();
+
+        }
+
+        async function eliminarPost(id) {
+
+            const respuesta = await fetch(`${API_URL}/${id}`, {
+
+                method: "DELETE"
+
+            });
+
+            if (!respuesta.ok)
+                throw new Error("No se pudo eliminar.");
+
+        }
+
+        //===========================
+        // MOSTRAR PUBLICACIÓN
+        //===========================
+
+        function crearCard(post) {
+
+            return `
+                <div class="post">
+
+                    <p><strong>ID:</strong> ${post.id}</p>
+
+                    <p><strong>Usuario:</strong> ${post.userId}</p>
+
+                    <p><strong>Título:</strong> ${post.title}</p>
+
+                    <p><strong>Contenido:</strong> ${post.body}</p>
+
+                </div>
+            `;
+
+        }
+
+        //===========================
+        // LISTAR
+        //===========================
+
+        document.getElementById("btnListar").onclick = async () => {
+
+            const contenedor = document.getElementById("listaPosts");
+
+            contenedor.innerHTML = "Cargando...";
+
+            try {
+
+                const posts = await obtenerPosts();
+
+                contenedor.innerHTML = "";
+
+                posts.forEach(post => {
+
+                    contenedor.innerHTML += crearCard(post);
+
+                });
+
+            }
+
+            catch (error) {
+
+                contenedor.innerHTML = "<p>Error al obtener publicaciones.</p>";
+
+            }
+
+        };
+
+        document.getElementById("btnOcultar").onclick = () => {
+
+            document.getElementById("listaPosts").innerHTML = "";
+
+        };
+
+        //===========================
+        // BUSCAR ID
+        //===========================
+
+        document.getElementById("btnBuscar").onclick = async () => {
+
+            const id = document.getElementById("buscarId").value;
+
+            const resultado = document.getElementById("resultadoBusqueda");
+
+            try {
+
+                const post = await obtenerPostPorId(id);
+
+                resultado.innerHTML = crearCard(post);
+
+            }
+
+            catch {
+
+                resultado.innerHTML = "No encontrado.";
+
+            }
+
+        };
+
+        //===========================
+        // FILTRAR USER
+        //===========================
+
+        document.getElementById("btnUsuario").onclick = async () => {
+
+            const id = document.getElementById("buscarUserId").value;
+
+            const resultado = document.getElementById("resultadoUsuario");
+
+            try {
+
+                const posts = await obtenerPostsUsuario(id);
+
+                resultado.innerHTML = "";
+
+                posts.forEach(post => {
+
+                    resultado.innerHTML += crearCard(post);
+
+                });
+
+            }
+
+            catch {
+
+                resultado.innerHTML = "Error.";
+
+            }
+
+        };
+
+        //===========================
+        // CREAR
+        //===========================
+
+        document.getElementById("btnCrear").onclick = async () => {
+
+            const post = {
+
+                userId: Number(document.getElementById("crearUserId").value),
+
+                title: document.getElementById("crearTitulo").value,
+
+                body: document.getElementById("crearBody").value
+
+            };
+
+            try {
+
+                const creado = await crearPost(post);
+
+                document.getElementById("resultadoCrear").innerHTML =
+                    "Publicación creada con ID " + creado.id;
+
+            }
+
+            catch {
+
+                document.getElementById("resultadoCrear").innerHTML =
+                    "Error al crear.";
+
+            }
+
+        };
+
+        //===========================
+        // PATCH
+        //===========================
+
+        document.getElementById("btnActualizar").onclick = async () => {
+
+            const id = document.getElementById("actId").value;
+
+            const titulo = document.getElementById("actTitulo").value;
+
+            try {
+
+                const actualizado = await actualizarTitulo(id, titulo);
+
+                document.getElementById("resultadoActualizar").innerHTML =
+                    "Nuevo título: " + actualizado.title;
+
+            }
+
+            catch {
+
+                document.getElementById("resultadoActualizar").innerHTML =
+                    "Error al actualizar.";
+
+            }
+
+        };
+
+        //===========================
+        // DELETE
+        //===========================
+
+        document.getElementById("btnEliminar").onclick = async () => {
+
+            const id = document.getElementById("eliminarId").value;
+
+            try {
+
+                await eliminarPost(id);
+
+                document.getElementById("resultadoEliminar").innerHTML =
+                    "Publicación eliminada correctamente (simulada).";
+
+            }
+
+            catch {
+
+                document.getElementById("resultadoEliminar").innerHTML =
+                    "Error al eliminar.";
+
+            }
+
+        };
+
+    </script>
+
+</body>
+
+</html>
