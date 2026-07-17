@@ -1,4 +1,4 @@
-# Consumo de API REST con JSONPlaceholder (Recurso /posts)
+# Consumo de API REST con JSONPlaceholder
 
 Aplicación académica desarrollada con **TypeScript** y **HTML5** nativo que interactúa con una API REST simulada para la administración de publicaciones.
 
