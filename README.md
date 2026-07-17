@@ -29,4 +29,59 @@ Aplicación académica desarrollada con **TypeScript** y **HTML5** nativo que in
 *   **Uso:** Ejecuta la destrucción lógica o física sobre el recurso indexado a través de la ruta `/posts/id`.
 
 
+## Ejecutar con Docker
 
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/GabrielManosalvas/API-REST.git
+cd API-REST
+```
+
+### 2. Construir la imagen
+
+```bash
+docker build -t gamanosalvas/api-rest .
+```
+
+### 3. Ejecutar el contenedor
+
+```bash
+docker run -d -p 8080:80 --name api-rest gamanosalvas/api-rest
+```
+
+### 4. Abrir la aplicación
+
+```
+http://localhost:8080
+```
+
+---
+
+## Ejecutar con Docker Compose
+
+```bash
+docker compose up --build
+```
+
+La aplicación estará disponible en:
+
+```
+http://localhost:8080
+```
+
+---
+
+## Imagen en Docker Hub
+
+La imagen también puede descargarse desde Docker Hub:
+
+```bash
+docker pull gamanosalvas/api-rest
+```
+
+Y ejecutarse con:
+
+```bash
+docker run -d -p 8080:80 gamanosalvas/api-rest
+```
